@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-import { foo } from './main'
+import { FiniteField } from './main';
 
-foo()
+new FiniteField(23n);
