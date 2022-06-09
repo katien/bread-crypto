@@ -1,5 +1,5 @@
 {
-  "name": "bread-crypto",
+  "name": "@bread-club/bread-crypto",
   "version": "0.0.0",
   "description": "crypto library",
   "author": "essentialbreads",
@@ -8,7 +8,7 @@
   "types": "./dist/tsc/main.d.ts",
   "browser": "./dist/esbuild/browser.js",
   "bin": {
-    "my-cli-tool": "./dist/esbuild/cli.js"
+    "my-cli-tool": "dist/esbuild/cli.js"
   },
   "scripts": {
     "cli": "ts-node src/cli.ts",
@@ -39,6 +39,19 @@
     "typescript": "^4.7.3"
   },
   "dependencies": {
+    "bignumber.js": "^9.0.2",
     "typedoc": "^0.22.17"
-  }
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/katien/bread-crypto.git"
+  },
+  "bugs": {
+    "url": "https://github.com/katien/bread-crypto/issues"
+  },
+  "homepage": "https://github.com/katien/bread-crypto#readme"
 }
