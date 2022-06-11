@@ -19,7 +19,7 @@ export class EllipticCurve {
 
   /**
    * Instantiate a curve with the supplied curve parameters a and b
-   * Validates that the curve is non-I singular
+   * Validates that the curve is non-singular
    * */
   constructor(a: number, b: number) {
     if (4 * (a ** 3) + 27 * (b ** 2) === 0)
@@ -51,6 +51,9 @@ export class EllipticCurve {
     return sum;
   }
 
+  /**
+   * Adds two points
+   * */
   private addPoints(a: Point, b: Point): Point {
     // additive identity
     if (a.x === null || a.y === null) {
@@ -81,7 +84,6 @@ export class EllipticCurve {
       return {x, y};
     }
   }
-
 
   /**
    * Validates the point by verifying that it exists on the curve

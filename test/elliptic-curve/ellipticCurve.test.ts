@@ -20,7 +20,7 @@ describe("addition on an elliptic curve", () => {
     expect(curve1.add({x: 2, y: 2}, {x: 2, y: -2})).toBeNear({x: null, y: null});
   });
 
-  test('handles additive inverse where tangent line is vertical by returning point at infinity', () => {
+  test('handles adding root to itself where tangent line is vertical by returning point at infinity', () => {
     expect(curve2.add({x: -2, y: 0}, {x: -2, y: 0})).toBeNear({x: null, y: null});
   });
   test('handles additive identity ', () => {
@@ -57,10 +57,10 @@ describe("curve and point validation", () => {
       new EllipticCurve(0, 0);
     }).toThrow();
 
-    expect(()=>curve1.validatePoint({x: 10, y: 2})).toThrow();
-    expect(()=>curve1.validatePoint({x: 1, y: 2})).not.toThrow();
-    expect(()=>curve1.validatePoint({x: null, y: 9})).toThrow();
-    expect(()=>curve1.validatePoint({x: null, y: null})).not.toThrow();
+    expect(() => curve1.validatePoint({x: 10, y: 2})).toThrow();
+    expect(() => curve1.validatePoint({x: 1, y: 2})).not.toThrow();
+    expect(() => curve1.validatePoint({x: null, y: 9})).toThrow();
+    expect(() => curve1.validatePoint({x: null, y: null})).not.toThrow();
   });
 });
 
