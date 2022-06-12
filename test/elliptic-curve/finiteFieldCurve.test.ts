@@ -51,6 +51,11 @@ describe("addition on an elliptic curve over a finite field", () => {
   });
 
   test('handles additive inverse where tangent line is vertical by returning point at infinity', () => {
+    expect(curve1.add({x: new BigNumber(64), y: new BigNumber(0)}, {
+      x: new BigNumber(64),
+      y: new BigNumber(0)
+    })).toBeAt({x: null, y: null});
+
     expect(curve2.add({x: new BigNumber(209), y: new BigNumber(0)}, {
       x: new BigNumber(209),
       y: new BigNumber(0)
@@ -76,9 +81,6 @@ describe("addition on an elliptic curve over a finite field", () => {
   });
 });
 describe("inversion on an elliptic curve over a finite field", () => {
-  const curve1 = new FiniteFieldCurve(new BigNumber(-7), new BigNumber(10), new BigNumber(97));
-  const curve2 = new FiniteFieldCurve(new BigNumber(1), new BigNumber(10), new BigNumber(211));
-
   test('inversion of a point', () => {
     expect(curve1.invert({x: new BigNumber(9), y: new BigNumber(26)}))
       .toBeAt({x: new BigNumber(9), y: new BigNumber(71)});
@@ -93,9 +95,6 @@ describe("inversion on an elliptic curve over a finite field", () => {
 });
 
 describe("scalar multiplication of a point on an elliptic curve over a finite field", () => {
-  const curve1 = new FiniteFieldCurve(new BigNumber(-7), new BigNumber(10), new BigNumber(97));
-  const curve2 = new FiniteFieldCurve(new BigNumber(1), new BigNumber(10), new BigNumber(211));
-
   test('handles multiplication by regular scalars', () => {
     expect(curve1.mult(
       {x: new BigNumber(3), y: new BigNumber(4)},
@@ -114,6 +113,38 @@ describe("scalar multiplication of a point on an elliptic curve over a finite fi
       {x: new BigNumber(14), y: new BigNumber(5)},
       new BigNumber(-5)))
       .toBeAt({x: new BigNumber(180), y: new BigNumber(19)});
+  });
+
+  test('handles multiplication of root by even and off scalars', () => {
+    expect(curve1.mult(
+      {x: new BigNumber(64), y: new BigNumber(0)},
+      new BigNumber(0)))
+      .toBeAt({x: null, y: null});
+
+    expect(curve1.mult(
+      {x: new BigNumber(64), y: new BigNumber(0)},
+      new BigNumber(1)))
+      .toBeAt({x: new BigNumber(64), y: new BigNumber(0)});
+
+    expect(curve1.mult(
+      {x: new BigNumber(64), y: new BigNumber(0)},
+      new BigNumber(2)))
+      .toBeAt({x: null, y: null});
+
+    expect(curve2.mult(
+      {x: new BigNumber(209), y: new BigNumber(0)},
+      new BigNumber(0)))
+      .toBeAt({x: null, y: null});
+
+    expect(curve2.mult(
+      {x: new BigNumber(209), y: new BigNumber(0)},
+      new BigNumber(1)))
+      .toBeAt({x: new BigNumber(209), y: new BigNumber(0)});
+
+    expect(curve2.mult(
+      {x: new BigNumber(209), y: new BigNumber(0)},
+      new BigNumber(2)))
+      .toBeAt({x: null, y: null});
   });
 });
 
@@ -134,8 +165,6 @@ describe("scalar multiplication of a point on an elliptic curve over a finite fi
 });
 
 describe("curve and point validation", () => {
-  const curve1 = new FiniteFieldCurve(new BigNumber(-7), new BigNumber(10), new BigNumber(97));
-
   test('errors on singular curve', () => {
     expect(() => {
       new FiniteFieldCurve(new BigNumber(0), new BigNumber(0), new BigNumber(97));

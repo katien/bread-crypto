@@ -4,3 +4,4 @@
 export function mod(n: bigint, modulus: bigint) {
   return (n % modulus + modulus) % modulus;
 }
+

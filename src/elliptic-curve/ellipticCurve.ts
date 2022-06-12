@@ -5,6 +5,7 @@ export interface Point {
 
 /**
  * An elliptic curve defined over the real numbers
+ * todo: update to use bignumber or similar lib
  * */
 export class EllipticCurve {
   /**

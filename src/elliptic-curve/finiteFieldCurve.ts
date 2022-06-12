@@ -1,5 +1,4 @@
 import BigNumber from "BigNumber.js";
-
 BigNumber.config({MODULO_MODE: BigNumber.EUCLID});
 
 export interface Point {
@@ -76,7 +75,7 @@ export class FiniteFieldCurve {
   /**
    * multiplies a point by a scalar
    * */
-  mult(point: Point, n: BigNumber): Point {
+  naiveMultiply(point: Point, n: BigNumber): Point {
     this.validatePoint(point);
     const scalar = n.mod(this.order);
     let sum: Point = {x: null, y: null};
@@ -84,6 +83,26 @@ export class FiniteFieldCurve {
     for (let i = new BigNumber(0); i.lt(scalar); i = i.plus(1)) {
       sum = this.addPoints(sum, point);
     }
+    return sum;
+  }
+
+  /**
+   * Efficient implementation of scalar multiplication of a point using binary expansion of scalar
+   * */
+  mult(point: Point, n: BigNumber): Point {
+    this.validatePoint(point);
+
+    const digits = n.mod(this.order).toString(2).split("").reverse();
+    let sum: Point = {x: null, y: null};
+    // double counter for each binary digit traversed
+    let counter = point;
+
+    digits.forEach((digit: string) => {
+      // add counter to sum for all 1's in binary representation of scalar
+      if (digit === '1') sum = this.add(sum, counter);
+      counter = this.addPoints(counter, counter);
+    });
+
     return sum;
   }
 
@@ -140,7 +159,7 @@ export class FiniteFieldCurve {
     if ((p.x === null || p.y === null) && (p.x != p.y))
       throw Error(`Only point at infinity can have null x or y: (${p.x}, ${p.y})`);
 
-    if (p.x?.gte(this.order) || p.x?.lt(0) || p.y?.gte(this.order) || p.y?.lt(0) )
+    if (p.x?.gte(this.order) || p.x?.lt(0) || p.y?.gte(this.order) || p.y?.lt(0))
       throw Error(`Point (${p.x}, ${p.y}) out of range for field of order ${this.order}`);
 
     if ((p.x !== null && p.y !== null) &&
