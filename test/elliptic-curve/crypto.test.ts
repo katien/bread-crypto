@@ -1,20 +1,20 @@
 import {FiniteFieldCurve, Point} from "../../src/elliptic-curve/finiteFieldCurve";
-import BigNumber from "BigNumber.js";
+import bignumber from "bignumber.js";
 
-const p = new BigNumber('115792089237316195423570985008687907853269984665640564039457584007908834671663');
+const p = new bignumber('115792089237316195423570985008687907853269984665640564039457584007908834671663');
 const G = {
-  x: new BigNumber('0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 16),
-  y: new BigNumber('0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8', 16)
+  x: new bignumber('0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 16),
+  y: new bignumber('0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8', 16)
 };
-// const n = new BigNumber('0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141', 16);
-const secp256k1 = new FiniteFieldCurve(new BigNumber(0), new BigNumber(7), new BigNumber(p));
+// const n = new bignumber('0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141', 16);
+const secp256k1 = new FiniteFieldCurve(new bignumber(0), new bignumber(7), new bignumber(p));
 
 describe("elliptic curve arithmetic over a finite field", () => {
   test('handles secp256k1', () => {
     expect(() => secp256k1.validatePoint(G)).not.toThrow();
     expect(() => secp256k1.validatePoint({x: null, y: null})).not.toThrow();
 
-    expect(secp256k1.mult(G, new BigNumber(1))).toBeAt(G);
+    expect(secp256k1.mult(G, new bignumber(1))).toBeAt(G);
 
     // todo: fails due to range limit on bignumber.js
     // expect(secp256k1.mult(G, n)).toBeAt({x: null, y: null});

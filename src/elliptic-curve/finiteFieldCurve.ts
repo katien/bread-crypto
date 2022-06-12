@@ -1,9 +1,9 @@
-import BigNumber from "BigNumber.js";
-BigNumber.config({MODULO_MODE: BigNumber.EUCLID});
+import bignumber from "bignumber.js";
+bignumber.config({MODULO_MODE: bignumber.EUCLID});
 
 export interface Point {
-  x: BigNumber | null;
-  y: BigNumber | null;
+  x: bignumber | null;
+  y: bignumber | null;
 }
 
 /**
@@ -14,23 +14,23 @@ export class FiniteFieldCurve {
   /**
    * Order of field
    * */
-  order: BigNumber;
+  order: bignumber;
 
   /**
    * Curve parameter a for formula y^2 = x^3 + ax + b
    * */
-  a: BigNumber;
+  a: bignumber;
 
   /**
    * Curve parameter b for formula y^2 = x^3 + ax + b
    * */
-  b: BigNumber;
+  b: bignumber;
 
   /**
    * Instantiate a curve with the supplied curve parameters a and b and field order
    * Validates that the curve is non-singular
    * */
-  constructor(a: BigNumber, b: BigNumber, order: BigNumber) {
+  constructor(a: bignumber, b: bignumber, order: bignumber) {
     if (!order.mod(1).eq(0) || order.lt(2))
       throw Error(`Invalid order ${order}, must be a prime power integer`);
 
@@ -75,12 +75,12 @@ export class FiniteFieldCurve {
   /**
    * multiplies a point by a scalar
    * */
-  naiveMultiply(point: Point, n: BigNumber): Point {
+  naiveMultiply(point: Point, n: bignumber): Point {
     this.validatePoint(point);
     const scalar = n.mod(this.order);
     let sum: Point = {x: null, y: null};
     // todo: this could be optimized with binary expansion
-    for (let i = new BigNumber(0); i.lt(scalar); i = i.plus(1)) {
+    for (let i = new bignumber(0); i.lt(scalar); i = i.plus(1)) {
       sum = this.addPoints(sum, point);
     }
     return sum;
@@ -89,7 +89,7 @@ export class FiniteFieldCurve {
   /**
    * Efficient implementation of scalar multiplication of a point using binary expansion of scalar
    * */
-  mult(point: Point, n: BigNumber): Point {
+  mult(point: Point, n: bignumber): Point {
     this.validatePoint(point);
 
     const digits = n.mod(this.order).toString(2).split("").reverse();
@@ -109,7 +109,7 @@ export class FiniteFieldCurve {
   /**
    * Divides a number by another number using finite field division rules
    * */
-  private div(a: BigNumber, b: BigNumber): BigNumber {
+  private div(a: bignumber, b: bignumber): bignumber {
     if (b.eq(0)) throw Error(`Can't divide ${a} by 0`);
 
     // Fermat's little theorem - obtain the multiplicative inverse of a number on a prime order field by multiplying by order-2
