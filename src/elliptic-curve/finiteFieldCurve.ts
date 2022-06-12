@@ -38,7 +38,6 @@ export class FiniteFieldCurve {
     if (a.exponentiatedBy(3).multipliedBy(4)
       .plus(27)
       .multipliedBy(b.exponentiatedBy(2))
-      .mod(order)
       .eq(0))
       throw Error(`Parameters a = ${a} and b = ${b} create a singular curve`);
 
@@ -81,6 +80,7 @@ export class FiniteFieldCurve {
     this.validatePoint(point);
     const scalar = n.mod(this.order);
     let sum: Point = {x: null, y: null};
+    // todo: this could be optimized with binary expansion
     for (let i = new BigNumber(0); i.lt(scalar); i = i.plus(1)) {
       sum = this.addPoints(sum, point);
     }
@@ -120,10 +120,10 @@ export class FiniteFieldCurve {
 
       return {x, y};
     }
-    /*
-     * TODO: is there a scenario where a point is being added to itself at the apex of the curve?
-     * over the real numbers this is when (a.x.eq(b.x) && a.y.eq(b.y) && a.y.eq(0))
-     */
+    // adding root to itself (vertical tangent line over real numbers, will always have y=0)
+    else if (a.x.eq(b.x) && a.y.eq(0)) {
+      return {x: null, y: null};
+    }
     // adding a point to itself
     else {
       const m = this.div(a.x.pow(2).times(3).plus(this.a), a.y.times(2));
@@ -139,6 +139,10 @@ export class FiniteFieldCurve {
   validatePoint(p: Point) {
     if ((p.x === null || p.y === null) && (p.x != p.y))
       throw Error(`Only point at infinity can have null x or y: (${p.x}, ${p.y})`);
+
+    if (p.x?.gte(this.order) || p.x?.lt(0) || p.y?.gte(this.order) || p.y?.lt(0) )
+      throw Error(`Point (${p.x}, ${p.y}) out of range for field of order ${this.order}`);
+
     if ((p.x !== null && p.y !== null) &&
       !p.y.pow(2).mod(this.order).isEqualTo(p.x?.pow(3).plus(this.a.times(p.x)).plus(this.b).mod(this.order)))
       throw Error(`Point (${p.x}, ${p.y}) not on curve y^2 = x^3 + ${this.a}x + ${this.b} mod ${this.order}`);

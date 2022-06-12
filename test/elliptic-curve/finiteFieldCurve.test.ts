@@ -1,4 +1,3 @@
-import {EllipticCurve} from '../../src/elliptic-curve/ellipticCurve';
 import {FiniteFieldCurve, Point} from "../../src/elliptic-curve/finiteFieldCurve";
 import BigNumber from "BigNumber.js";
 
@@ -52,8 +51,8 @@ describe("addition on an elliptic curve over a finite field", () => {
   });
 
   test('handles additive inverse where tangent line is vertical by returning point at infinity', () => {
-    expect(curve2.add({x: new BigNumber(-2), y: new BigNumber(0)}, {
-      x: new BigNumber(-2),
+    expect(curve2.add({x: new BigNumber(209), y: new BigNumber(0)}, {
+      x: new BigNumber(209),
       y: new BigNumber(0)
     })).toBeAt({x: null, y: null});
   });
@@ -139,7 +138,7 @@ describe("curve and point validation", () => {
 
   test('errors on singular curve', () => {
     expect(() => {
-      new EllipticCurve(0, 0);
+      new FiniteFieldCurve(new BigNumber(0), new BigNumber(0), new BigNumber(97));
     }).toThrow();
 
     expect(() => curve1.validatePoint({x: new BigNumber(10), y: new BigNumber(2)})).toThrow();

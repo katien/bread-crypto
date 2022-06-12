@@ -1,9 +1,9 @@
 import {EllipticCurve, Point} from '../../src/elliptic-curve/ellipticCurve';
 
-describe("addition on an elliptic curve", () => {
-  const curve1 = new EllipticCurve(-7, 10);
-  const curve2 = new EllipticCurve(1, 10);
+const curve1 = new EllipticCurve(-7, 10);
+const curve2 = new EllipticCurve(1, 10);
 
+describe("addition on an elliptic curve", () => {
   test('handles addition of unique points with different x coordinates', () => {
     expect(curve1.add({x: 1, y: 2}, {x: 3, y: 4})).toBeNear({x: -3, y: 2});
     expect(curve1.add({x: 5, y: 10}, {x: 1, y: 2})).toBeNear({x: -2, y: 4});
@@ -29,9 +29,6 @@ describe("addition on an elliptic curve", () => {
   });
 });
 describe("scalar multiplication of a point on an elliptic curve", () => {
-  const curve1 = new EllipticCurve(-7, 10);
-  const curve2 = new EllipticCurve(1, 10);
-
   test('handles multiplication by even and odd scalars', () => {
     expect(curve1.mult({x: 1, y: 2}, 1)).toBeNear({x: 1, y: 2});
     expect(curve1.mult({x: 1, y: 2}, 2)).toBeNear({x: -1, y: -4});
@@ -50,8 +47,6 @@ describe("scalar multiplication of a point on an elliptic curve", () => {
 });
 
 describe("curve and point validation", () => {
-  const curve1 = new EllipticCurve(-7, 10);
-
   test('errors on singular curve', () => {
     expect(() => {
       new EllipticCurve(0, 0);
