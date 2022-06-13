@@ -18,8 +18,7 @@ export function toBeAt(received: Point, expected: Point) {
     return fail;
 
   // accept points within 0.001 of each other as being equivalent
-  if (received.x.minus(expected.x).abs().gt(0.001) ||
-    received.y.minus(expected.y).abs().gt(0.001)) {
+  if (!received.x.eq(expected.x) || !received.y.eq(expected.y)) {
     return fail;
   }
 
