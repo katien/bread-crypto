@@ -1,167 +1,166 @@
 import {FiniteFieldCurve, Point} from "../../src/elliptic-curve/finiteFieldCurve";
-import bignumber from "bignumber.js";
 import {toBeAt} from "../extensions/toBeAt";
 expect.extend({toBeAt});
 
-const curve1 = new FiniteFieldCurve(new bignumber(-7), new bignumber(10), new bignumber(97));
-const curve2 = new FiniteFieldCurve(new bignumber(1), new bignumber(10), new bignumber(211));
+const curve1 = new FiniteFieldCurve(-7n, 10n, 97n);
+const curve2 = new FiniteFieldCurve(1n, 10n, 211n);
 
 describe("addition on an elliptic curve over a finite field", () => {
   test('handles addition of unique points with different x coordinates', () => {
     expect(curve1.add(
-      {x: new bignumber(13), y: new bignumber(46)},
-      {x: new bignumber(2), y: new bignumber(95)}))
-      .toBeAt({x: new bignumber(81), y: new bignumber(10)});
+      {x: 13n, y: 46n},
+      {x: 2n, y: 95n}))
+      .toBeAt({x: 81n, y: 10n});
 
     expect(curve1.add(
-      {x: new bignumber(96), y: new bignumber(4)},
-      {x: new bignumber(3), y: new bignumber(93)}))
-      .toBeAt({x: new bignumber(2), y: new bignumber(2)});
+      {x: 96n, y: 4n},
+      {x: 3n, y: 93n}))
+      .toBeAt({x: 2n, y: 2n});
 
     expect(curve1.add(
-      {x: new bignumber(11), y: new bignumber(10)},
-      {x: new bignumber(40), y: new bignumber(96)}))
-      .toBeAt({x: new bignumber(21), y: new bignumber(54)});
+      {x: 11n, y: 10n},
+      {x: 40n, y: 96n}))
+      .toBeAt({x: 21n, y: 54n});
 
     expect(curve2.add(
-      {x: new bignumber(16), y: new bignumber(18)},
-      {x: new bignumber(82), y: new bignumber(31)}))
-      .toBeAt({x: new bignumber(122), y: new bignumber(89)});
+      {x: 16n, y: 18n},
+      {x: 82n, y: 31n}))
+      .toBeAt({x: 122n, y: 89n});
   });
 
   test('handles adding a point to itself', () => {
     expect(curve1.add(
-      {x: new bignumber(11), y: new bignumber(10)},
-      {x: new bignumber(11), y: new bignumber(10)}))
-      .toBeAt({x: new bignumber(31), y: new bignumber(22)});
+      {x: 11n, y: 10n},
+      {x: 11n, y: 10n}))
+      .toBeAt({x: 31n, y: 22n});
   });
 
   test('handles additive inverse by returning point at infinity', () => {
     expect(curve1.add(
-      {x: new bignumber(9), y: new bignumber(26)},
-      {x: new bignumber(9), y: new bignumber(71)}))
+      {x: 9n, y: 26n},
+      {x: 9n, y: 71n}))
       .toBeAt({x: null, y: null});
     expect(curve1.add(
-      {x: new bignumber(9), y: new bignumber(71)},
-      {x: new bignumber(9), y: new bignumber(26)}))
+      {x: 9n, y: 71n},
+      {x: 9n, y: 26n}))
       .toBeAt({x: null, y: null});
 
     expect(curve2.add(
-      {x: new bignumber(14), y: new bignumber(5)},
-      {x: new bignumber(14), y: new bignumber(206)}))
+      {x: 14n, y: 5n},
+      {x: 14n, y: 206n}))
       .toBeAt({x: null, y: null});
   });
 
   test('handles additive inverse where tangent line is vertical by returning point at infinity', () => {
-    expect(curve1.add({x: new bignumber(64), y: new bignumber(0)}, {
-      x: new bignumber(64),
-      y: new bignumber(0)
+    expect(curve1.add({x: 64n, y: 0n}, {
+      x: 64n,
+      y: 0n
     })).toBeAt({x: null, y: null});
 
-    expect(curve2.add({x: new bignumber(209), y: new bignumber(0)}, {
-      x: new bignumber(209),
-      y: new bignumber(0)
+    expect(curve2.add({x: 209n, y: 0n}, {
+      x: 209n,
+      y: 0n
     })).toBeAt({x: null, y: null});
   });
 
   test('handles additive identity ', () => {
     expect(curve1.add(
-      {x: new bignumber(13), y: new bignumber(46)},
+      {x: 13n, y: 46n},
       {x: null, y: null})).toBeAt(
-      {x: new bignumber(13), y: new bignumber(46)});
+      {x: 13n, y: 46n});
     expect(curve1.add(
-      {x: new bignumber(96), y: new bignumber(4)},
-      {x: new bignumber(3), y: new bignumber(93)},
+      {x: 96n, y: 4n},
+      {x: 3n, y: 93n},
       {x: null, y: null})).toBeAt(
-      {x: new bignumber(2), y: new bignumber(2)});
+      {x: 2n, y: 2n});
 
     expect(curve2.add(
-      {x: new bignumber(6), y: new bignumber(77)},
-      {x: new bignumber(17), y: new bignumber(64)},
+      {x: 6n, y: 77n},
+      {x: 17n, y: 64n},
       {x: null, y: null})).toBeAt(
-      {x: new bignumber(90), y: new bignumber(99)});
+      {x: 90n, y: 99n});
   });
 });
 describe("inversion on an elliptic curve over a finite field", () => {
   test('inversion of a point', () => {
-    expect(curve1.invert({x: new bignumber(9), y: new bignumber(26)}))
-      .toBeAt({x: new bignumber(9), y: new bignumber(71)});
-    expect(curve1.invert({x: new bignumber(9), y: new bignumber(71)}))
-      .toBeAt({x: new bignumber(9), y: new bignumber(26)});
+    expect(curve1.invert({x: 9n, y: 26n}))
+      .toBeAt({x: 9n, y: 71n});
+    expect(curve1.invert({x: 9n, y: 71n}))
+      .toBeAt({x: 9n, y: 26n});
 
-    expect(curve2.invert({x: new bignumber(14), y: new bignumber(5)}))
-      .toBeAt({x: new bignumber(14), y: new bignumber(206)});
-    expect(curve2.invert({x: new bignumber(14), y: new bignumber(206)}))
-      .toBeAt({x: new bignumber(14), y: new bignumber(5)});
+    expect(curve2.invert({x: 14n, y: 5n}))
+      .toBeAt({x: 14n, y: 206n});
+    expect(curve2.invert({x: 14n, y: 206n}))
+      .toBeAt({x: 14n, y: 5n});
   });
 });
 
 describe("scalar multiplication of a point on an elliptic curve over a finite field", () => {
   test('handles multiplication by regular scalars', () => {
     expect(curve1.mult(
-      {x: new bignumber(3), y: new bignumber(4)},
-      new bignumber(2)))
-      .toBeAt({x: new bignumber(73), y: new bignumber(15)});
+      {x: 3n, y: 4n},
+      2n))
+      .toBeAt({x: 73n, y: 15n});
     expect(curve1.mult(
-      {x: new bignumber(19), y: new bignumber(25)},
-      new bignumber(18)))
-      .toBeAt({x: new bignumber(55), y: new bignumber(79)});
+      {x: 19n, y: 25n},
+      18n))
+      .toBeAt({x: 55n, y: 79n});
     expect(curve1.mult(
-      {x: new bignumber(3), y: new bignumber(4)},
-      new bignumber(0)))
+      {x: 3n, y: 4n},
+      0n))
       .toBeAt({x: null, y: null});
 
     expect(curve2.mult(
-      {x: new bignumber(14), y: new bignumber(5)},
-      new bignumber(-5)))
-      .toBeAt({x: new bignumber(180), y: new bignumber(19)});
+      {x: 14n, y: 5n},
+      -5n))
+      .toBeAt({x: 180n, y: 19n});
   });
 
   test('handles multiplication of root by even and off scalars', () => {
     expect(curve1.mult(
-      {x: new bignumber(64), y: new bignumber(0)},
-      new bignumber(0)))
+      {x: 64n, y: 0n},
+      0n))
       .toBeAt({x: null, y: null});
 
     expect(curve1.mult(
-      {x: new bignumber(64), y: new bignumber(0)},
-      new bignumber(1)))
-      .toBeAt({x: new bignumber(64), y: new bignumber(0)});
+      {x: 64n, y: 0n},
+      1n))
+      .toBeAt({x: 64n, y: 0n});
 
     expect(curve1.mult(
-      {x: new bignumber(64), y: new bignumber(0)},
-      new bignumber(2)))
+      {x: 64n, y: 0n},
+      2n))
       .toBeAt({x: null, y: null});
 
     expect(curve2.mult(
-      {x: new bignumber(209), y: new bignumber(0)},
-      new bignumber(0)))
+      {x: 209n, y: 0n},
+      0n))
       .toBeAt({x: null, y: null});
 
     expect(curve2.mult(
-      {x: new bignumber(209), y: new bignumber(0)},
-      new bignumber(1)))
-      .toBeAt({x: new bignumber(209), y: new bignumber(0)});
+      {x: 209n, y: 0n},
+      1n))
+      .toBeAt({x: 209n, y: 0n});
 
     expect(curve2.mult(
-      {x: new bignumber(209), y: new bignumber(0)},
-      new bignumber(2)))
+      {x: 209n, y: 0n},
+      2n))
       .toBeAt({x: null, y: null});
   });
 });
 
 describe("scalar multiplication of a point on an elliptic curve over a finite field of order 2", () => {
-  const curve1 = new FiniteFieldCurve(new bignumber(-7), new bignumber(10), new bignumber(2));
+  const curve1 = new FiniteFieldCurve(-7n, 10n, 2n);
 
   test('handles multiplication by scalars', () => {
     expect(curve1.mult(
-      {x: new bignumber(1), y: new bignumber(0)}, new bignumber(0)))
+      {x: 1n, y: 0n}, 0n))
       .toBeAt({x: null, y: null});
     expect(curve1.mult(
-      {x: new bignumber(1), y: new bignumber(0)}, new bignumber(1)))
-      .toBeAt({x: new bignumber(1), y: new bignumber(0)});
+      {x: 1n, y: 0n}, 1n))
+      .toBeAt({x: 1n, y: 0n});
     expect(curve1.mult(
-      {x: new bignumber(1), y: new bignumber(0)}, new bignumber(2)))
+      {x: 1n, y: 0n}, 2n))
       .toBeAt({x: null, y: null});
   });
 });
@@ -169,12 +168,12 @@ describe("scalar multiplication of a point on an elliptic curve over a finite fi
 describe("curve and point validation", () => {
   test('errors on singular curve', () => {
     expect(() => {
-      new FiniteFieldCurve(new bignumber(0), new bignumber(0), new bignumber(97));
+      new FiniteFieldCurve(0n, 0n, 97n);
     }).toThrow();
 
-    expect(() => curve1.validatePoint({x: new bignumber(10), y: new bignumber(2)})).toThrow();
-    expect(() => curve1.validatePoint({x: new bignumber(1), y: new bignumber(2)})).not.toThrow();
-    expect(() => curve1.validatePoint({x: null, y: new bignumber(9)})).toThrow();
+    expect(() => curve1.validatePoint({x: 10n, y: 2n})).toThrow();
+    expect(() => curve1.validatePoint({x: 1n, y: 2n})).not.toThrow();
+    expect(() => curve1.validatePoint({x: null, y: 9n})).toThrow();
     expect(() => curve1.validatePoint({x: null, y: null})).not.toThrow();
   });
 });

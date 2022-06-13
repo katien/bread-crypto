@@ -1,9 +1,8 @@
-import bignumber from "bignumber.js";
-bignumber.config({MODULO_MODE: bignumber.EUCLID});
+import {mod} from "../util/util";
 
 export interface Point {
-  x: bignumber | null;
-  y: bignumber | null;
+  x: bigint | null;
+  y: bigint | null;
 }
 
 /**
@@ -14,30 +13,27 @@ export class FiniteFieldCurve {
   /**
    * Order of field
    * */
-  order: bignumber;
+  order: bigint;
 
   /**
    * Curve parameter a for formula y^2 = x^3 + ax + b
    * */
-  a: bignumber;
+  a: bigint;
 
   /**
    * Curve parameter b for formula y^2 = x^3 + ax + b
    * */
-  b: bignumber;
+  b: bigint;
 
   /**
    * Instantiate a curve with the supplied curve parameters a and b and field order
    * Validates that the curve is non-singular
    * */
-  constructor(a: bignumber, b: bignumber, order: bignumber) {
-    if (!order.mod(1).eq(0) || order.lt(2))
+  constructor(a: bigint, b: bigint, order: bigint) {
+    if (mod(order, 1n) != 0n || order < 2n)
       throw Error(`Invalid order ${order}, must be a prime power integer`);
 
-    if (a.exponentiatedBy(3).multipliedBy(4)
-      .plus(27)
-      .multipliedBy(b.exponentiatedBy(2))
-      .eq(0))
+    if (4n * (a ** 3n) + (27n * b ** 2n) === 0n)
       throw Error(`Parameters a = ${a} and b = ${b} create a singular curve`);
 
     this.a = a;
@@ -68,19 +64,19 @@ export class FiniteFieldCurve {
 
     return {
       x: point.x,
-      y: point.y.times(-1).mod(this.order)
+      y: mod(-point.y, this.order)
     };
   }
 
   /**
    * multiplies a point by a scalar
    * */
-  naiveMultiply(point: Point, n: bignumber): Point {
+  naiveMultiply(point: Point, n: bigint): Point {
     this.validatePoint(point);
-    const scalar = n.mod(this.order);
+    const scalar = mod(n, this.order);
     let sum: Point = {x: null, y: null};
     // todo: this could be optimized with binary expansion
-    for (let i = new bignumber(0); i.lt(scalar); i = i.plus(1)) {
+    for (let i = 0n; i < scalar; i++) {
       sum = this.addPoints(sum, point);
     }
     return sum;
@@ -89,10 +85,10 @@ export class FiniteFieldCurve {
   /**
    * Efficient implementation of scalar multiplication of a point using binary expansion of scalar
    * */
-  mult(point: Point, n: bignumber): Point {
+  mult(point: Point, n: bigint): Point {
     this.validatePoint(point);
 
-    const digits = n.mod(this.order).toString(2).split("").reverse();
+    const digits = mod(n, this.order).toString(2).split("").reverse();
     let sum: Point = {x: null, y: null};
     // double counter for each binary digit traversed
     let counter = point;
@@ -109,12 +105,12 @@ export class FiniteFieldCurve {
   /**
    * Divides a number by another number using finite field division rules
    * */
-  private div(a: bignumber, b: bignumber): bignumber {
-    if (b.eq(0)) throw Error(`Can't divide ${a} by 0`);
+  private div(a: bigint, b: bigint): bigint {
+    if (b === 0n) throw Error(`Can't divide ${a} by 0`);
 
     // Fermat's little theorem - obtain the multiplicative inverse of a number on a prime order field by multiplying by order-2
-    const inverse = b.pow(this.order.minus(2));
-    return a.times(inverse).mod(this.order);
+    const inverse = b ** (this.order - 2n);
+    return mod(a * inverse, this.order);
   }
 
   /**
@@ -128,26 +124,26 @@ export class FiniteFieldCurve {
       return a;
     }
     // additive inverse (same x)
-    else if (a.x.eq(b.x) && !a.y.eq(b.y)) {
+    else if (a.x === b.x && a.y !== b.y) {
       return {x: null, y: null};
     }
     // unique points with different x values
-    else if (!a.x.eq(b.x)) {
-      const m = this.div((b.y.minus(a.y)), (b.x.minus(a.x)));
-      const x = (m.pow(2)).minus(a.x).minus(b.x).mod(this.order);
-      const y = m.times(a.x.minus(x)).minus(a.y).mod(this.order);
+    else if (a.x !== b.x) {
+      const m = this.div(b.y - a.y, b.x - a.x);
+      const x = mod((m ** 2n) - a.x - b.x, this.order);
+      const y = mod(m * (a.x - x) - a.y, this.order);
 
       return {x, y};
     }
     // adding root to itself (vertical tangent line over real numbers, will always have y=0)
-    else if (a.x.eq(b.x) && a.y.eq(0)) {
+    else if (a.x === b.x && a.y === 0n) {
       return {x: null, y: null};
     }
     // adding a point to itself
     else {
-      const m = this.div(a.x.pow(2).times(3).plus(this.a), a.y.times(2));
-      const x = m.pow(2).minus(a.x.times(2)).mod(this.order);
-      const y = m.times(a.x.minus(x)).minus(a.y).mod(this.order);
+      const m = this.div(3n * (a.x ** 2n) + this.a, 2n * a.y);
+      const x = mod((m ** 2n) - (2n * a.x), this.order);
+      const y = mod(m * (a.x - x) - a.y, this.order);
       return {x, y};
     }
   }
@@ -159,11 +155,13 @@ export class FiniteFieldCurve {
     if ((p.x === null || p.y === null) && (p.x != p.y))
       throw Error(`Only point at infinity can have null x or y: (${p.x}, ${p.y})`);
 
-    if (p.x?.gte(this.order) || p.x?.lt(0) || p.y?.gte(this.order) || p.y?.lt(0))
+    if (p.x === null || p.y === null) return;
+
+    if (p.x >= this.order || p.x < 0n ||
+      p.y >= this.order || p.y < 0n)
       throw Error(`Point (${p.x}, ${p.y}) out of range for field of order ${this.order}`);
 
-    if ((p.x !== null && p.y !== null) &&
-      !p.y.pow(2).mod(this.order).isEqualTo(p.x?.pow(3).plus(this.a.times(p.x)).plus(this.b).mod(this.order)))
+    if (mod(p.y ** 2n, this.order) !== mod((p.x ** 3n) + (this.a * p.x) + this.b, this.order))
       throw Error(`Point (${p.x}, ${p.y}) not on curve y^2 = x^3 + ${this.a}x + ${this.b} mod ${this.order}`);
   }
 }
